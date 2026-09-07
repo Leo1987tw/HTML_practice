@@ -1,15 +1,22 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My title</title>
 </head>
+
 <body>
+    <div>
+        <a href="../01_js.html">返回前頁</a>
+    </div>
+
     <h1>A heading</h1>
 
     <a href="">Link text</a>
 </body>
+
 </html>
 
 <script>
@@ -20,21 +27,21 @@
     console.log('myTitle', myTitle);
     console.log('myH1', myH1);
     console.log('myA', myA);
-    console.log('Window',Window);
+    console.log('Window', Window);
 
-    myTitle.addEventListener('click', function(){
+    myTitle.addEventListener('click', function () {
         myTitle.textContent = 'New Title';
         myH1.textContent = 'New Heading';
         myA.textContent = 'New Link';
     });
 
-    myH1.addEventListener('click', function(){
+    myH1.addEventListener('click', function () {
         myTitle.textContent = 'New Title';
         myH1.textContent = 'New Heading';
         myA.textContent = 'New Link';
     });
 
-    myA.addEventListener('click', function(event){
+    myA.addEventListener('click', function (event) {
         event.preventDefault(); // 不加這個會直接觸發超連結
         myTitle.textContent = 'New Title';
         myH1.textContent = 'New Heading';
@@ -44,5 +51,5 @@
     console.log('myTitle', myTitle);
     console.log('myH1', myH1);
     console.log('myA', myA);
-    console.log('Window',Window);
+    console.log('Window', Window);
 </script>

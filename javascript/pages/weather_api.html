@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>氣象預測36小時</title>
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: radial-gradient(circle at top left, #7c3aed 0%, #4f46e5 45%, #111827 100%);
+            color: #f8fafc;
+        }
+
+        .container {
+            width: min(540px, calc(100% - 32px));
+            padding: 40px 30px;
+            background: rgba(15, 23, 42, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 26px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.35);
+            text-align: center;
+        }
+
+        .container > div {
+            margin-top: 18px;
+        }
+
+        .container > div:first-child {
+            margin-top: 0;
+            text-align: left;
+        }
+
+        .container a {
+            display: inline-block;
+            padding: 12px 22px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #4338ca;
+            text-decoration: none;
+            border-radius: 999px;
+            font-weight: 700;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .container a:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 26px rgba(0, 0, 0, 0.2);
+        }
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <div>
+            <a href="../04_beginning.html">返回前頁</a>
+        </div>
+        <h1>氣象預測36小時</h1>
+        <table border="1" cellpadding="10" style="border-collapse: collapse; width: 100%; text-align: center;">
+            <thead>
+                <tr>
+                    <th>縣市名稱</th>
+                    <th>時間區段</th>
+                    <th>天氣現象 (Wx)</th>
+                    <th>降雨機率 (PoP)</th>
+                    <th>最低溫度 (MinT)</th>
+                    <th>最高溫度 (MaxT)</th>
+                </tr>
+            </thead>
+            <!-- jQuery 會把資料動態塞進這個 tbody 裡面 -->
+            <tbody id="weather-list">
+                <tr>
+                    <td colspan="6">資料載入中...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        let url = `https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=CWA-9047051C-A45F-4875-84DF-9C5A1AC91455`;
+        $.ajax({
+            type: "get",
+            url: url,
+            data: {},
+            dataType: "json",
+            success: function (response) {
+                // 1. 取得所有縣市的陣列
+                const locations = response.records.location;
+
+                // 2. 準備一個空字串，用來累積所有 HTML 表格列 (tr)
+                let tableRows = '';
+
+                // 3. 使用 jQuery 的 $.each 遍歷每一個縣市
+                $.each(locations, function (index, loc) {
+                    const cityName = loc.locationName; // 縣市名稱 (如：嘉義縣)
+
+                    // 氣象署的 weatherElement 陣列固定順序通常為：0:Wx, 1:PoP, 2:MinT, 3:CI, 4:MaxT
+                    // 安全起見，這裡直接抓取對應索引的第一個時間段 [0]
+                    const startTime = loc.weatherElement[0].time[0].startTime;
+                    const endTime = loc.weatherElement[0].time[0].endTime;
+
+                    const wx = loc.weatherElement[0].time[0].parameter.parameterName; // 天氣現象
+                    const pop = loc.weatherElement[1].time[0].parameter.parameterName; // 降雨機率
+                    const minT = loc.weatherElement[2].time[0].parameter.parameterName; // 最低溫
+                    const maxT = loc.weatherElement[4].time[0].parameter.parameterName; // 最高溫
+
+                    // 將時間格式簡化，只顯示「月/日 時:分」讓表格更美觀
+                    const formatTime = `${startTime.substring(5, 16)} ~ ${endTime.substring(5, 16)}`;
+
+                    // 4. 組合這一列的 HTML
+                    tableRows += `
+            <tr>
+                <td><strong>${cityName}</strong></td>
+                <td><small>${formatTime}</small></td>
+                <td>${wx}</td>
+                <td>${pop} %</td>
+                <td>${minT} °C</td>
+                <td>${maxT} °C</td>
+            </tr>
+        `;
+                });
+
+                // 5. 使用 jQuery 的 .html() 將所有產生的 tr 一次塞入 tbody 中，覆蓋掉「載入中」
+                $('#weather-list').html(tableRows);
+            },
+
+            error: function (xhr, status, error) {
+                console.log('failed: ', error);
+            }
+        });
+    </script>
+</body>
+
+</html>
